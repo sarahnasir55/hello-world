@@ -7,20 +7,17 @@ WORKDIR /app
 # Ensure correct permissions for the directory and files
 RUN mkdir -p /app && chown -R 1001:0 /app
 
+# Copy package.json and package-lock.json separately to leverage Docker caching
+COPY --chown=1001:0 package.json package-lock.json ./
+
 # Switch to OpenShift's default non-root user
 USER 1001
-
-# Copy package.json and package-lock.json separately to leverage Docker caching
-COPY package.json package-lock.json ./
-
-# Fix permissions for package-lock.json before running npm install
-RUN chmod -R 777 /app
 
 # Install dependencies
 RUN npm install --unsafe-perm
 
 # Copy the entire project
-COPY . .
+COPY --chown=1001:0 . .
 
 # Build the React app
 RUN npm run build

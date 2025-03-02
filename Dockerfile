@@ -31,8 +31,14 @@ WORKDIR /usr/share/nginx/html
 # Copy the build output to Nginx's default public folder
 COPY --from=build /app/build .
 
+# Switch to root user to modify permissions
+USER root
+
 # Ensure proper permissions
 RUN chmod -R 755 /usr/share/nginx/html
+
+# Switch back to the default non-root user for security
+USER 1001
 
 # Expose port 8080 for OpenShift
 EXPOSE 8080

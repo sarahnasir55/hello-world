@@ -4,14 +4,19 @@ FROM registry.access.redhat.com/ubi8/nodejs-18 AS build
 # Set working directory
 WORKDIR /app
 
-# Ensure correct permissions
+# Ensure correct permissions for the directory and files
 RUN mkdir -p /app && chown -R 1001:0 /app
 
 # Switch to OpenShift's default non-root user
 USER 1001
 
-# Copy package.json and install dependencies
+# Copy package.json and package-lock.json separately to leverage Docker caching
 COPY package.json package-lock.json ./
+
+# Fix permissions for package-lock.json before running npm install
+RUN chmod -R 777 /app
+
+# Install dependencies
 RUN npm install --unsafe-perm
 
 # Copy the entire project
@@ -29,15 +34,10 @@ WORKDIR /usr/share/nginx/html
 # Copy the build output to Nginx's default public folder
 COPY --from=build /app/build .
 
-# Set correct permissions (important for OpenShift)
+# Ensure proper permissions
 RUN chmod -R 755 /usr/share/nginx/html
 
-# Switch to OpenShift non-root user
-USER 1001
-
-# Expose OpenShift-preferred port
+# Expose port 8080 for OpenShift
 EXPOSE 8080
 
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
-

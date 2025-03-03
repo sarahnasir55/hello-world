@@ -26,6 +26,6 @@ RUN chmod -R 755 /usr/share/nginx/html
 
 USER 1001
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]

@@ -36,7 +36,7 @@ WORKDIR /app
 
 # Install only production dependencies
 COPY package.json package-lock.json ./
-RUN npm ci --only=production  # much lighter than `npm install`
+RUN npm ci --only=production
 
 COPY . .
 

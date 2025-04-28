@@ -30,33 +30,22 @@
 
 # CMD ["nginx", "-g", "daemon off;"]
 
-# Step 1: Build the React app
 FROM node:18 as build
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
+# Install only production dependencies
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci --only=production  # much lighter than `npm install`
 
-# Copy the rest of the app's source code
 COPY . .
 
-# Build the app for production
 RUN npm run build
 
-# Step 2: Serve the build using a lightweight web server
 FROM nginx:alpine
 
-# Copy the build output to Nginx's HTML directory
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy a custom Nginx config (optional)
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose the port Nginx runs on
 EXPOSE 80
 
-# Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]

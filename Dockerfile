@@ -30,19 +30,20 @@
 
 # CMD ["nginx", "-g", "daemon off;"]
 
+
 FROM node:18 as build
 
 WORKDIR /app
 
 # Install only production dependencies
 COPY package.json package-lock.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production  # much lighter than `npm install`
 
 COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
+FROM docker.io/library/nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
 
